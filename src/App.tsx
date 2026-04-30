@@ -253,11 +253,11 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
                 </div>
 
                 <div>
-                   <h3 className={`font-display font-bold tracking-tighter mb-1 leading-[0.85] ${isLarge ? 'text-5xl md:text-6xl' : 'text-3xl md:text-4xl'}`}>
+                   <h3 className={`font-display font-bold tracking-tighter mb-1 leading-[0.85] ${isLarge ? 'text-3xl md:text-6xl' : 'text-3xl md:text-4xl'}`}>
                     {item.country.includes('(') ? (
                       <div className="flex flex-col">
                         <span>{item.country.split('(')[0]}</span>
-                        <span className={`font-display font-bold tracking-tight text-blue-600 ${isLarge ? 'text-3xl md:text-4xl mt-1' : 'text-2xl md:text-3xl mt-0.5'}`}>
+                        <span className={`font-display font-bold tracking-tight text-blue-600 ${isLarge ? 'text-2xl md:text-4xl mt-1' : 'text-2xl md:text-3xl mt-0.5'}`}>
                           ({item.country.split('(')[1]}
                         </span>
                       </div>
