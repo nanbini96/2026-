@@ -1,0 +1,6 @@
+{
+  "name": "빙글로드 참가 팀 현황",
+  "description": "국가별 빙글로드 참가 신청 팀 수를 한눈에 확인하는 현황 페이지입니다.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}
