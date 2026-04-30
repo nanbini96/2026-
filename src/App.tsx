@@ -10,23 +10,23 @@ interface TeamData {
   id: string;
   country: string;
   count: number;
-  flag: string;
+  code: string;    // ISO alpha-2 country code for flags
   status: 'LANDED' | 'ON TIME' | 'EN ROUTE';
-  lat: number;   // For Map positioning (vertical % from top)
-  lng: number;   // For Map positioning (horizontal % from left)
+  lat: number;
+  lng: number;
 }
 
 const INITIAL_DATA: TeamData[] = [
-  { id: '1', country: '인도', count: 0, flag: '🇮🇳', status: 'ON TIME', lat: 55, lng: 72 },
-  { id: '2', country: '모로코', count: 0, flag: '🇲🇦', status: 'LANDED', lat: 48, lng: 45 },
-  { id: '3', country: '튀르키예', count: 0, flag: '🇹🇷', status: 'ON TIME', lat: 45, lng: 58 },
-  { id: '4', country: '카자흐스탄', count: 0, flag: '🇰🇿', status: 'EN ROUTE', lat: 38, lng: 68 },
-  { id: '5', country: '몽골', count: 0, flag: '🇲🇳', status: 'ON TIME', lat: 38, lng: 80 },
-  { id: '6', country: '체코', count: 0, flag: '🇨🇿', status: 'LANDED', lat: 42, lng: 52 },
-  { id: '7', country: '이탈리아(밀라노)', count: 0, flag: '🇮🇹', status: 'ON TIME', lat: 45, lng: 50 },
-  { id: '8', country: '캐나다 동부(퀘백)', count: 0, flag: '🇨🇦', status: 'EN ROUTE', lat: 42, lng: 28 },
-  { id: '9', country: '호주(브리즈번)', count: 0, flag: '🇦🇺', status: 'ON TIME', lat: 78, lng: 91 },
-  { id: '10', country: '호주(퍼스)', count: 0, flag: '🇦🇺', status: 'EN ROUTE', lat: 80, lng: 85 },
+  { id: '1', country: '인도', count: 0, code: 'in', status: 'ON TIME', lat: 55, lng: 72 },
+  { id: '2', country: '모로코', count: 0, code: 'ma', status: 'LANDED', lat: 48, lng: 45 },
+  { id: '3', country: '튀르키예', count: 0, code: 'tr', status: 'ON TIME', lat: 45, lng: 58 },
+  { id: '4', country: '카자흐스탄', count: 0, code: 'kz', status: 'EN ROUTE', lat: 38, lng: 68 },
+  { id: '5', country: '몽골', count: 0, code: 'mn', status: 'ON TIME', lat: 38, lng: 80 },
+  { id: '6', country: '체코', count: 0, code: 'cz', status: 'LANDED', lat: 42, lng: 52 },
+  { id: '7', country: '이탈리아(밀라노)', count: 0, code: 'it', status: 'ON TIME', lat: 45, lng: 50 },
+  { id: '8', country: '캐나다 동부(퀘백)', count: 0, code: 'ca', status: 'EN ROUTE', lat: 42, lng: 28 },
+  { id: '9', country: '호주(브리즈번)', count: 0, code: 'au', status: 'ON TIME', lat: 78, lng: 91 },
+  { id: '10', country: '호주(퍼스)', count: 0, code: 'au', status: 'EN ROUTE', lat: 80, lng: 85 },
 ];
 
 const ADMIN_EMAIL = 'hanbinii96@gmail.com';
@@ -104,7 +104,11 @@ function EditLayout({ data, onUpdate, onClose }: { data: TeamData[], onUpdate: (
            {data.map((item) => (
              <div key={item.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100 focus-within:border-blue-500 focus-within:bg-blue-50/30 transition-all">
                 <div className="flex items-center gap-3">
-                   <span className="text-3xl">{item.flag}</span>
+                   <img 
+                     src={`https://flagcdn.com/w40/${item.code.toLowerCase()}.png`}
+                     alt=""
+                     className="w-10 h-7 object-cover rounded border border-gray-200"
+                   />
                    <span className="font-bold text-gray-700">{item.country}</span>
                 </div>
                 <div className="flex items-center gap-3">
@@ -152,6 +156,12 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
     return `${currentTime.getFullYear()}년 ${currentTime.getMonth() + 1}월 ${currentTime.getDate()}일 ${currentTime.getHours()}시 ${currentTime.getMinutes()}분`;
   }, [currentTime]);
 
+  const dDay = useMemo(() => {
+    const targetDate = new Date(2026, 4, 21); // 2026년 5월 21일 (월은 0부터 시작하므로 4)
+    const diff = targetDate.getTime() - currentTime.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }, [currentTime]);
+
   return (
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
@@ -168,7 +178,22 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
           />
           <h1 className="text-6xl md:text-7xl font-black tracking-tighter leading-[1.1] text-gray-900">
             2026 빙글로드(<span className="text-blue-600">BinglRoad</span>) <br />
-            <span className="text-blue-600 text-5xl md:text-6xl">신청 팀 현황</span>
+            <div className="flex items-center gap-4 flex-wrap mt-2">
+              <span className="text-blue-600 text-5xl md:text-6xl">신청 팀 현황</span>
+              {dDay >= 0 ? (
+                <motion.span 
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="bg-red-600 text-white text-2xl md:text-3xl px-6 py-1.5 rounded-full font-black tracking-normal shadow-lg shadow-red-200 animate-pulse translate-y-2"
+                >
+                  신청 마감 D-{dDay} (~5/21)
+                </motion.span>
+              ) : (
+                <span className="bg-gray-400 text-white text-2xl md:text-3xl px-6 py-1.5 rounded-full font-black tracking-normal">
+                  마감
+                </span>
+              )}
+            </div>
           </h1>
           <p className="text-gray-500 text-lg font-medium max-w-md tabular-nums">{timeString} 기준</p>
         </div>
@@ -200,19 +225,22 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
                 isLarge ? 'md:col-span-2' : 'col-span-1'
               } group relative h-64 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:shadow-2xl hover:-translate-y-1 bg-white/80 backdrop-blur-md text-gray-900 border border-white/40 shadow-xl`}
             >
-              <div className="absolute -top-4 -right-4 p-8 opacity-5 group-hover:opacity-10 group-hover:scale-125 transition-all duration-700 pointer-events-none select-none">
-                <span className="text-[12rem] leading-none filter blur-[2px] group-hover:blur-0 transition-all">
-                  {item.flag}
-                </span>
+              <div className="absolute -bottom-6 -right-6 w-48 h-32 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-700 pointer-events-none select-none">
+                <img 
+                  src={`https://flagcdn.com/w320/${item.code.toLowerCase()}.png`}
+                  alt=""
+                  className="w-full h-full object-contain filter blur-[1px] group-hover:blur-0 transition-all"
+                />
               </div>
 
               <div className="relative h-full flex flex-col justify-between z-10">
                 <div className="flex justify-between items-start">
-                  <div className="relative">
-                    <div className="absolute -inset-4 bg-black/5 rounded-full blur-xl opacity-0 group-hover:opacity-100 transition-opacity" />
-                    <span className="text-6xl drop-shadow-xl relative z-10 transform group-hover:scale-110 transition-transform duration-500">
-                      {item.flag}
-                    </span>
+                  <div className="relative border-4 border-white shadow-lg rounded-xl overflow-hidden w-20 h-14 transform group-hover:scale-110 group-hover:rotate-3 transition-all duration-500">
+                    <img 
+                      src={`https://flagcdn.com/w160/${item.code.toLowerCase()}.png`}
+                      alt={item.country}
+                      className="w-full h-full object-cover"
+                    />
                   </div>
                   <div className="flex flex-col items-end">
                      <span className={`font-black tabular-nums transition-colors ${
