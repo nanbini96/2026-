@@ -167,7 +167,7 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className="max-w-7xl mx-auto px-6 py-12 pb-32 font-sans origin-top transform scale-[0.9]"
+      className="max-w-7xl mx-auto px-6 py-12 pb-32 font-sans origin-top transition-transform duration-700 md:scale-[0.9] sm:scale-[0.95]"
     >
       <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-8">
         <div className="space-y-4">
