@@ -170,7 +170,7 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
             2026 빙글로드(<span className="text-blue-600">BinglRoad</span>) <br />
             <span className="text-blue-600 text-5xl md:text-6xl">신청 팀 현황</span>
           </h1>
-          <p className="text-gray-500 text-lg font-medium max-w-md tabular-nums">현재 {timeString} 기준의 신청 현황</p>
+          <p className="text-gray-500 text-lg font-medium max-w-md tabular-nums">{timeString} 기준</p>
         </div>
         
         <div className="bg-blue-600 rounded-[3rem] p-10 md:p-14 text-white flex items-center gap-10 shadow-2xl shadow-blue-500/30 border-4 border-blue-500/20">
@@ -294,7 +294,7 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
             className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest"
           >
             <Activity className="w-3 h-3" />
-            데이터 수정
+            데이터 수정 (인재육성팀 담당자만 수정 가능)
           </button>
         </div>
       )}
