@@ -109,7 +109,7 @@ function EditLayout({ data, onUpdate, onClose }: { data: TeamData[], onUpdate: (
                      alt=""
                      className="w-10 h-7 object-cover rounded border border-gray-200"
                    />
-                   <span className="font-bold text-gray-700">{item.country}</span>
+                   <span translate="no" className="font-bold text-gray-700 notranslate">{item.country}</span>
                 </div>
                 <div className="flex items-center gap-3">
                    <button 
@@ -252,7 +252,7 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
                   </div>
                 </div>
 
-                <div>
+                 <div translate="no" className="notranslate">
                    <h3 className={`font-display font-bold tracking-tighter mb-1 leading-[0.85] ${isLarge ? 'text-3xl md:text-6xl' : 'text-3xl md:text-4xl'}`}>
                     {item.country.includes('(') ? (
                       <div className="flex flex-col">
