@@ -165,25 +165,45 @@ export default function App() {
       </AnimatePresence>
 
       {/* Auth UI - Moved from fixed to relative bottom flow */}
-      <div className="relative pb-24 pt-12 flex justify-center z-10">
+      <div className="relative pb-24 pt-12 flex flex-col items-center gap-4 z-10">
         {user ? (
-          <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md p-1.5 pl-3 rounded-full border border-white/40 shadow-sm opacity-60 hover:opacity-100 transition-opacity">
-            <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap">{user.email}</span>
-            <button 
-              onClick={logout}
-              className="p-1.5 bg-gray-100/50 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-all"
-              title="로그아웃"
-            >
-              <LogOut className="w-3 h-3" />
-            </button>
+          <div className="flex items-center gap-3 bg-white/80 backdrop-blur-md p-2 pl-4 rounded-full border border-white/40 shadow-lg">
+            <div className="flex flex-col">
+              <span className="text-[10px] font-black text-gray-400 uppercase tracking-tighter leading-none mb-0.5">Admin Account</span>
+              <span className="text-xs font-bold text-gray-600 leading-none">{user.email}</span>
+            </div>
+            
+            <div className="flex items-center gap-1 border-l border-gray-100 pl-2">
+              {isAdmin && (
+                <button 
+                  onClick={() => setLayoutMode(layoutMode === 'EDIT' ? 'BENTO' : 'EDIT')}
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full transition-all font-black text-[10px] uppercase tracking-widest ${
+                    layoutMode === 'EDIT' 
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-200' 
+                    : 'bg-blue-50 text-blue-600 hover:bg-blue-100'
+                  }`}
+                >
+                  <Activity className="w-3 h-3" />
+                  {layoutMode === 'EDIT' ? '보기 모드' : '데이터 수정'}
+                </button>
+              )}
+              
+              <button 
+                onClick={logout}
+                className="p-2 bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-all"
+                title="로그아웃"
+              >
+                <LogOut className="w-3.5 h-3.5" />
+              </button>
+            </div>
           </div>
         ) : (
           <button 
             onClick={login}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 backdrop-blur-sm text-gray-400 hover:text-blue-600 rounded-full border border-white/20 shadow-sm hover:bg-white/80 transition-all font-bold text-[10px] uppercase tracking-widest whitespace-nowrap"
+            className="flex items-center gap-2 px-6 py-3 bg-white text-gray-400 hover:text-blue-600 rounded-full border border-gray-100 shadow-sm hover:border-blue-100 hover:bg-blue-50/30 transition-all font-bold text-xs uppercase tracking-[0.2em] whitespace-nowrap"
           >
-            <LogIn className="w-3 h-3" />
-            관리자 로그인
+            <LogIn className="w-4 h-4" />
+            관리자 로그인하여 데이터 관리하기
           </button>
         )}
       </div>
@@ -432,18 +452,6 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
            </div>
         </motion.div>
       </div>
-
-      {isAdmin && (
-        <div className="mt-12 flex justify-center">
-          <button 
-            onClick={() => onLayoutChange('EDIT')}
-            className="flex items-center gap-2 px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-400 hover:text-gray-600 rounded-xl transition-all font-bold text-[10px] uppercase tracking-widest"
-          >
-            <Activity className="w-3 h-3" />
-            데이터 수정 (인재육성팀 담당자만 수정 가능)
-          </button>
-        </div>
-      )}
     </motion.div>
   );
 }
