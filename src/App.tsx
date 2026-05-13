@@ -203,7 +203,7 @@ export default function App() {
             className="flex items-center gap-2 px-6 py-3 bg-white text-gray-400 hover:text-blue-600 rounded-full border border-gray-100 shadow-sm hover:border-blue-100 hover:bg-blue-50/30 transition-all font-bold text-xs uppercase tracking-[0.2em] whitespace-nowrap"
           >
             <LogIn className="w-4 h-4" />
-            관리자 로그인하여 데이터 관리하기
+            Admin
           </button>
         )}
       </div>
