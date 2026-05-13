@@ -1,0 +1,26 @@
+{
+  "entities": {
+    "Team": {
+      "title": "Team",
+      "description": "Represents a participating country and its team count",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "country": { "type": "string" },
+        "count": { "type": "number" },
+        "code": { "type": "string" },
+        "status": { "type": "string", "enum": ["LANDED", "ON TIME", "EN ROUTE"] },
+        "lat": { "type": "number" },
+        "lng": { "type": "number" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["id", "country", "count", "code"]
+    }
+  },
+  "firestore": {
+    "/teams/{teamId}": {
+      "schema": "Team",
+      "description": "Collection of teams with their current headcounts"
+    }
+  }
+}

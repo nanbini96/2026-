@@ -1,0 +1,33 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Default deny
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // Helper functions
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'hanbinii96@gmail.com' && request.auth.token.email_verified == true;
+    }
+
+    function isValidTeam(data) {
+      return data.id is string && 
+             data.country is string && 
+             data.country.size() <= 100 &&
+             data.count is number && 
+             data.count >= 0 &&
+             data.code is string && 
+             data.code.size() <= 5;
+    }
+
+    match /teams/{teamId} {
+      allow read: if true;
+      allow write: if isAdmin() && isValidTeam(request.resource.data);
+    }
+  }
+}

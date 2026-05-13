@@ -1,8 +1,26 @@
 import { useState, useMemo, ReactNode, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
-  Plane, Activity, TrendingUp
+  Plane, Activity, TrendingUp, LogIn, LogOut
 } from 'lucide-react';
+import { 
+  collection, 
+  onSnapshot, 
+  doc, 
+  updateDoc, 
+  setDoc, 
+  getDocs,
+  query,
+  orderBy
+} from 'firebase/firestore';
+import { 
+  onAuthStateChanged, 
+  signInWithPopup, 
+  GoogleAuthProvider, 
+  signOut,
+  User
+} from 'firebase/auth';
+import { db, auth } from './lib/firebase';
 
 type LayoutMode = 'BENTO' | 'EDIT';
 
@@ -33,19 +51,95 @@ const ADMIN_EMAIL = 'hanbinii96@gmail.com';
 
 export default function App() {
   const [layoutMode, setLayoutMode] = useState<LayoutMode>('BENTO');
-  // In a real app, we would get this from a proper Auth provider
-  const [userEmail] = useState(ADMIN_EMAIL);
-  const isAdmin = userEmail === ADMIN_EMAIL;
+  const [user, setUser] = useState<User | null>(null);
+  const isAdmin = user?.email === ADMIN_EMAIL;
 
   const [teamsData, setTeamsData] = useState<TeamData[]>(INITIAL_DATA);
+  const [loading, setLoading] = useState(true);
+
+  // Auth Listener
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  // Firestore Sync
+  useEffect(() => {
+    // ID 기준으로 정렬하여 가져옴
+    const q = query(collection(db, 'teams'), orderBy('id'));
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      if (snapshot.empty) {
+        // DB가 비어있으면 초기 데이터를 유지하고, 관리자면 세딩 시도
+        if (isAdmin) {
+          seedInitialData();
+        }
+      } else {
+        const teams = snapshot.docs.map(doc => doc.data() as TeamData);
+        setTeamsData(teams);
+      }
+      setLoading(false);
+    }, (error) => {
+      console.error("Firestore sync error:", error);
+      // 에러가 나더라도 로딩은 해제 (기본 데이터라도 보여줌)
+      setLoading(false);
+    });
+
+    return () => unsubscribe();
+  }, [isAdmin]); // isAdmin 상태가 바뀔 때(로그인 시) 세딩을 위해 재실행 가능성 확인
+
+  const seedInitialData = async () => {
+    try {
+      for (const team of INITIAL_DATA) {
+        await setDoc(doc(db, 'teams', team.id), team);
+      }
+    } catch (err) {
+      console.error("Error seeding data:", err);
+    }
+  };
+
+  const login = async () => {
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+    } catch (err) {
+      console.error("Login failed:", err);
+    }
+  };
+
+  const logout = async () => {
+    await signOut(auth);
+  };
 
   const totalTeams = useMemo(() => {
     return teamsData.reduce((acc, curr) => acc + curr.count, 0);
   }, [teamsData]);
 
-  const handleUpdateCount = (id: string, newCount: number) => {
-    setTeamsData(prev => prev.map(item => item.id === id ? { ...item, count: newCount } : item));
+  const handleUpdateCount = async (id: string, newCount: number) => {
+    // Pessimistic update check (though rules handle it)
+    if (!isAdmin) return;
+    
+    try {
+      const teamRef = doc(db, 'teams', id);
+      await updateDoc(teamRef, { count: newCount });
+    } catch (err) {
+      console.error("Update failed:", err);
+    }
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-sky-50">
+        <motion.div 
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+        >
+          <Activity className="w-12 h-12 text-blue-600" />
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative min-h-screen bg-transparent text-gray-900 font-sans">
@@ -69,6 +163,30 @@ export default function App() {
           />
         )}
       </AnimatePresence>
+
+      {/* Auth UI - Moved from fixed to relative bottom flow */}
+      <div className="relative pb-24 pt-12 flex justify-center z-10">
+        {user ? (
+          <div className="flex items-center gap-2 bg-white/60 backdrop-blur-md p-1.5 pl-3 rounded-full border border-white/40 shadow-sm opacity-60 hover:opacity-100 transition-opacity">
+            <span className="text-[10px] font-bold text-gray-500 whitespace-nowrap">{user.email}</span>
+            <button 
+              onClick={logout}
+              className="p-1.5 bg-gray-100/50 hover:bg-red-50 text-gray-400 hover:text-red-500 rounded-full transition-all"
+              title="로그아웃"
+            >
+              <LogOut className="w-3 h-3" />
+            </button>
+          </div>
+        ) : (
+          <button 
+            onClick={login}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-white/40 backdrop-blur-sm text-gray-400 hover:text-blue-600 rounded-full border border-white/20 shadow-sm hover:bg-white/80 transition-all font-bold text-[10px] uppercase tracking-widest whitespace-nowrap"
+          >
+            <LogIn className="w-3 h-3" />
+            관리자 로그인
+          </button>
+        )}
+      </div>
     </div>
   );
 }
