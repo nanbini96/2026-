@@ -67,11 +67,9 @@ export default function App() {
 
   // Firestore Sync
   useEffect(() => {
-    // ID 기준으로 정렬하여 가져옴
     const q = query(collection(db, 'teams'), orderBy('id'));
     const unsubscribe = onSnapshot(q, (snapshot) => {
       if (snapshot.empty) {
-        // DB가 비어있으면 초기 데이터를 유지하고, 관리자면 세딩 시도
         if (isAdmin) {
           seedInitialData();
         }
@@ -82,12 +80,11 @@ export default function App() {
       setLoading(false);
     }, (error) => {
       console.error("Firestore sync error:", error);
-      // 에러가 나더라도 로딩은 해제 (기본 데이터라도 보여줌)
       setLoading(false);
     });
 
     return () => unsubscribe();
-  }, [isAdmin]); // isAdmin 상태가 바뀔 때(로그인 시) 세딩을 위해 재실행 가능성 확인
+  }, [isAdmin]);
 
   const seedInitialData = async () => {
     try {
@@ -117,9 +114,7 @@ export default function App() {
   }, [teamsData]);
 
   const handleUpdateCount = async (id: string, newCount: number) => {
-    // Pessimistic update check (though rules handle it)
     if (!isAdmin) return;
-    
     try {
       const teamRef = doc(db, 'teams', id);
       await updateDoc(teamRef, { count: newCount });
@@ -164,7 +159,7 @@ export default function App() {
         )}
       </AnimatePresence>
 
-      {/* Auth UI - Moved from fixed to relative bottom flow */}
+      {/* Auth UI */}
       <div className="relative pb-24 pt-12 flex flex-col items-center gap-4 z-10">
         {user ? (
           <div className="flex items-center gap-3 bg-white/80 backdrop-blur-md p-2 pl-4 rounded-full border border-white/40 shadow-lg">
@@ -347,6 +342,14 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
             </h2>
           </div>
         </div>
+      </div>
+
+      {/* 안내 문구 */}
+      <div className="mb-12 p-8 bg-white/45 backdrop-blur-sm rounded-[2.5rem] border border-white/40 text-center max-w-3xl mx-auto shadow-xl">
+        <p className="text-sm md:text-base font-black leading-relaxed text-gray-600 whitespace-pre-line">
+          ※ 신청 마감 이후에 개인 지원자분들의 팀 매칭 진행으로,{"\n"}
+          국가 신청현황은 5/25일주차까지 실시간 업데이트 예정입니다.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
