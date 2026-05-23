@@ -274,7 +274,27 @@ function EditLayout({ data, onUpdate, onClose }: { data: TeamData[], onUpdate: (
 
 // --- BENTO LAYOUT ---
 function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
-  const sorted = useMemo(() => [...data].sort((a, b) => b.count - a.count), [data]);
+  const sorted = useMemo(() => {
+    const getPriority = (countryStr: string) => {
+      if (countryStr.includes('호주') && countryStr.includes('브리즈번')) return 999;
+      if (countryStr.includes('호주')) return 1;
+      if (countryStr.includes('이탈리아')) return 2;
+      if (countryStr.includes('모로코')) return 3;
+      if (countryStr.includes('카자흐스탄')) return 4;
+      return 100;
+    };
+    return [...data].sort((a, b) => {
+      const pA = getPriority(a.country);
+      const pB = getPriority(b.country);
+      if (pA !== pB) {
+        return pA - pB;
+      }
+      if (b.count !== a.count) {
+        return b.count - a.count;
+      }
+      return Number(a.id) - Number(b.id);
+    });
+  }, [data]);
 
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -345,16 +365,16 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
       </div>
 
       {/* 안내 문구 */}
-      <div className="mb-12 p-8 bg-white/45 backdrop-blur-sm rounded-[2.5rem] border border-white/40 text-center max-w-3xl mx-auto shadow-xl">
-        <p className="text-sm md:text-base font-black leading-relaxed text-gray-600 whitespace-pre-line">
-          ※ 신청 마감 이후에 개인 지원자분들의 팀 매칭 진행으로,{"\n"}
-          국가 신청현황은 5/25일주차까지 실시간 업데이트 예정입니다.
+      <div className="mb-12 p-8 bg-white/45 backdrop-blur-sm rounded-[2.5rem] border border-white/40 text-center max-w-4xl mx-auto shadow-xl">
+        <p className="text-xl md:text-3xl font-black leading-relaxed text-gray-800 whitespace-pre-line">
+          ※ 2026 빙글로드 신청이 마감되었습니다.{"\n"}
+          (국가 권역별 총 4개 팀 지원){"\n"}
+          최종 연수팀 선정까지 많은 관심과 응원 부탁드립니다!
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {sorted.map((item: any, idx: number) => {
-          const isLarge = idx < 2;
           return (
             <motion.div 
               key={item.id}
@@ -362,9 +382,7 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ delay: idx * 0.05 }}
-              className={`${
-                isLarge ? 'md:col-span-2' : 'col-span-1'
-              } group relative h-64 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:shadow-2xl hover:-translate-y-1 bg-white/80 backdrop-blur-md text-gray-900 border border-white/40 shadow-xl`}
+              className="col-span-1 group relative h-64 rounded-[2.5rem] p-8 overflow-hidden transition-all hover:shadow-2xl hover:-translate-y-1 bg-white/80 backdrop-blur-md text-gray-900 border border-white/40 shadow-xl"
             >
               <div className="absolute -bottom-6 -right-6 w-48 h-32 opacity-10 group-hover:opacity-20 group-hover:scale-110 transition-all duration-700 pointer-events-none select-none">
                 <img 
@@ -384,9 +402,9 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
                     />
                   </div>
                   <div className="flex flex-col items-end">
-                     <span className={`font-black tabular-nums transition-colors ${
+                     <span className={`font-black tabular-nums transition-colors text-7xl ${
                        item.count > 0 ? 'text-red-600' : 'text-gray-900 group-hover:text-blue-600'
-                     } ${isLarge ? 'text-7xl' : 'text-5xl'}`}>
+                     }`}>
                        {item.count}
                      </span>
                      <span className="text-base font-bold opacity-40 uppercase tracking-widest -mt-1">Team</span>
@@ -394,11 +412,11 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
                 </div>
 
                  <div translate="no" className="notranslate">
-                   <h3 className={`font-display font-bold tracking-tighter mb-1 leading-[0.85] ${isLarge ? 'text-3xl md:text-6xl' : 'text-3xl md:text-4xl'}`}>
+                   <h3 className="font-display font-bold tracking-tighter mb-1 leading-[0.85] text-3xl md:text-6xl">
                     {item.country.includes('(') ? (
                       <div className="flex flex-col">
                         <span>{item.country.split('(')[0]}</span>
-                        <span className={`font-display font-bold tracking-tight text-blue-600 ${isLarge ? 'text-2xl md:text-4xl mt-1' : 'text-2xl md:text-3xl mt-0.5'}`}>
+                        <span className="font-display font-bold tracking-tight text-blue-600 text-2xl md:text-4xl mt-1">
                           ({item.country.split('(')[1]}
                         </span>
                       </div>
@@ -417,7 +435,7 @@ function BentoLayout({ data, total, onLayoutChange, isAdmin }: any) {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           onClick={() => window.open('http://smile.bing.co.kr/myoffice/ezBoardSTD/BoardItemView_Cross.aspx?ShowAdjacent=&ItemID={F614DC6F-62EE-438D-BD35-05A4181D45BC}&BoardID={01d1bffc-8797-68b2-c539-5c1bf48f299c}&location=GENERAL', '_blank')}
-          className="col-span-1 sm:col-span-2 lg:col-span-4 h-64 bg-yellow-400 rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between shadow-xl shadow-yellow-100 group hover:bg-yellow-300 transition-all cursor-pointer border-4 border-white gap-8 relative overflow-hidden mt-6"
+          className="col-span-1 md:col-span-2 h-64 bg-yellow-400 rounded-[2.5rem] p-10 flex flex-col md:flex-row items-center justify-between shadow-xl shadow-yellow-100 group hover:bg-yellow-300 transition-all cursor-pointer border-4 border-white gap-8 relative overflow-hidden mt-6"
         >
            {/* Decorative Accents */}
            <div className="absolute top-10 left-10 w-32 h-1 bg-white/40 blur-xl rounded-full" />
